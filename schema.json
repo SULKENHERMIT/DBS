@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PortfolioManagementSystemDatabaseSchema",
+  "description": "Formal MongoDB Document Database Schema for Live Stock and Crypto Portfolio Management System",
+  "databaseEngine": "MongoDB",
+  "collections": {
+    "users": {
+      "type": "object",
+      "description": "User identity, credentials, and base preferences.",
+      "required": ["_id", "email", "password_hash", "base_currency", "created_at"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Primary unique identifier."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Unique user email address (indexed unique)."
+        },
+        "password_hash": {
+          "type": "string",
+          "description": "Bcrypt hashed password string."
+        },
+        "base_currency": {
+          "type": "string",
+          "default": "USD",
+          "description": "ISO 4217 currency code (e.g. USD, EUR, GBP)."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp of user creation."
+        }
+      },
+      "indexes": [
+        { "fields": { "email": 1 }, "unique": true }
+      ],
+      "relationships": {
+        "portfolios": { "type": "one-to-many", "targetCollection": "portfolios", "foreignKey": "user_id" },
+        "watchlists": { "type": "one-to-many", "targetCollection": "watchlists", "foreignKey": "user_id" },
+        "alerts": { "type": "one-to-many", "targetCollection": "alerts", "foreignKey": "user_id" },
+        "audit_logs": { "type": "one-to-many", "targetCollection": "audit_logs", "foreignKey": "user_id" },
+        "transactions": { "type": "one-to-many", "targetCollection": "transactions", "foreignKey": "user_id" }
+      }
+    },
+
+    "portfolios": {
+      "type": "object",
+      "description": "User portfolios containing embedded asset holdings.",
+      "required": ["_id", "user_id", "name", "created_at", "holdings"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Primary unique identifier."
+        },
+        "user_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Reference to users._id."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Display name of the portfolio."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp of portfolio creation."
+        },
+        "holdings": {
+          "type": "array",
+          "description": "Embedded list of asset positions held in this portfolio.",
+          "items": {
+            "type": "object",
+            "required": ["_id", "symbol", "name", "type", "quantity", "average_buy_price", "updated_at"],
+            "properties": {
+              "_id": {
+                "type": "string",
+                "format": "objectId",
+                "description": "Unique identifier for this holding subdocument."
+              },
+              "symbol": {
+                "type": "string",
+                "description": "Ticker symbol in uppercase (e.g. BTC, ETH, AAPL, TSLA)."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name of the asset."
+              },
+              "type": {
+                "type": "string",
+                "enum": ["crypto", "stock"],
+                "description": "Asset classification."
+              },
+              "quantity": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Number of units held."
+              },
+              "average_buy_price": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Average purchase price in USD."
+              },
+              "asset_id": {
+                "type": ["string", "null"],
+                "format": "objectId",
+                "description": "Optional foreign key reference to assets._id."
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "UTC timestamp of last holding modification."
+              }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "fields": { "user_id": 1 }, "unique": false }
+      ],
+      "relationships": {
+        "user": { "type": "many-to-one", "targetCollection": "users", "localField": "user_id" },
+        "transactions": { "type": "one-to-many", "targetCollection": "transactions", "foreignKey": "portfolio_id" },
+        "performance": { "type": "one-to-many", "targetCollection": "portfolio_performance", "foreignKey": "portfolio_id" }
+      }
+    },
+
+    "assets": {
+      "type": "object",
+      "description": "Global catalog of financial assets (polymorphic for crypto and stock).",
+      "required": ["_id", "symbol", "name", "type", "created_at"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Primary unique identifier."
+        },
+        "symbol": {
+          "type": "string",
+          "description": "Unique ticker symbol in uppercase."
+        },
+        "name": {
+          "type": "string",
+          "description": "Full asset name."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["crypto", "stock"],
+          "description": "Asset classification discriminator."
+        },
+        "ticker_stats": {
+          "type": ["object", "null"],
+          "description": "1:1 embedded 24h market statistics.",
+          "properties": {
+            "price_per_unit": { "type": ["number", "null"] },
+            "volume_24h": { "type": ["number", "null"] },
+            "high_24h": { "type": ["number", "null"] },
+            "low_24h": { "type": ["number", "null"] },
+            "updated_at": { "type": ["string", "null"], "format": "date-time" }
+          }
+        },
+        "network": {
+          "type": ["string", "null"],
+          "description": "Blockchain network (Crypto specialization, e.g. Ethereum, Solana)."
+        },
+        "contract_address": {
+          "type": ["string", "null"],
+          "description": "Smart contract address on blockchain (Crypto specialization)."
+        },
+        "ticker_exchange": {
+          "type": ["string", "null"],
+          "description": "Primary exchange identifier (Stock specialization, e.g. NASDAQ, NYSE)."
+        },
+        "sector": {
+          "type": ["string", "null"],
+          "description": "Industry sector (Stock specialization, e.g. Technology, Healthcare)."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp of catalog entry."
+        }
+      },
+      "indexes": [
+        { "fields": { "symbol": 1 }, "unique": true }
+      ]
+    },
+
+    "price_cache": {
+      "type": "object",
+      "description": "High-throughput TTL price cache storing live CoinGecko and Finnhub rates for 5 minutes.",
+      "required": ["_id", "symbol", "asset_type", "price_usd", "fetched_at", "expire_at", "metadata"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Primary unique identifier."
+        },
+        "symbol": {
+          "type": "string",
+          "description": "Uppercase ticker symbol."
+        },
+        "asset_type": {
+          "type": "string",
+          "enum": ["crypto", "stock"],
+          "description": "Asset class."
+        },
+        "price_usd": {
+          "type": "number",
+          "description": "Latest fetched market price in USD."
+        },
+        "high_24h": { "type": ["number", "null"] },
+        "low_24h": { "type": ["number", "null"] },
+        "volume_24h": { "type": ["number", "null"] },
+        "change_24h": { "type": ["number", "null"] },
+        "fetched_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp when the quote was fetched."
+        },
+        "expire_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC expiration timestamp (fetched_at + 300 seconds)."
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Raw provider payload."
+        }
+      },
+      "indexes": [
+        { "fields": { "expire_at": 1 }, "expireAfterSeconds": 0, "description": "MongoDB TTL auto-expiry index" },
+        { "fields": { "symbol": 1, "asset_type": 1 }, "description": "Compound lookup index" }
+      ]
+    },
+
+    "transactions": {
+      "type": "object",
+      "description": "Unbounded time-series log of all buy/sell/transfer actions.",
+      "required": ["_id", "user_id", "portfolio_id", "symbol", "type", "quantity", "price_at_transaction", "timestamp"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "user_id": { "type": "string", "format": "objectId", "description": "References users._id." },
+        "portfolio_id": { "type": "string", "format": "objectId", "description": "References portfolios._id." },
+        "symbol": { "type": "string", "description": "Asset ticker symbol." },
+        "asset_id": { "type": ["string", "null"], "format": "objectId" },
+        "type": {
+          "type": "string",
+          "enum": ["BUY", "SELL", "TRANSFER_IN", "TRANSFER_OUT"]
+        },
+        "quantity": { "type": "number", "exclusiveMinimum": 0 },
+        "price_at_transaction": { "type": "number", "minimum": 0 },
+        "network_hash": { "type": ["string", "null"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "indexes": [
+        { "fields": { "portfolio_id": 1, "timestamp": -1 } },
+        { "fields": { "user_id": 1 } }
+      ]
+    },
+
+    "portfolio_performance": {
+      "type": "object",
+      "description": "Historical valuation and profit/loss snapshots.",
+      "required": ["_id", "portfolio_id", "total_value", "total_profit_loss", "total_profit_loss_pct", "timestamp"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "portfolio_id": { "type": "string", "format": "objectId", "description": "References portfolios._id." },
+        "total_value": { "type": "number" },
+        "total_profit_loss": { "type": "number" },
+        "total_profit_loss_pct": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "indexes": [
+        { "fields": { "portfolio_id": 1, "timestamp": -1 } }
+      ]
+    },
+
+    "watchlists": {
+      "type": "object",
+      "description": "User watchlists with embedded target items.",
+      "required": ["_id", "user_id", "name", "creation_date", "items"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "user_id": { "type": "string", "format": "objectId", "description": "References users._id." },
+        "name": { "type": "string" },
+        "creation_date": { "type": "string", "format": "date-time" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["_id", "symbol", "added_at"],
+            "properties": {
+              "_id": { "type": "string", "format": "objectId" },
+              "symbol": { "type": "string" },
+              "asset_id": { "type": ["string", "null"], "format": "objectId" },
+              "added_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "fields": { "user_id": 1 } }
+      ]
+    },
+
+    "alerts": {
+      "type": "object",
+      "description": "Target price trigger rules.",
+      "required": ["_id", "user_id", "symbol", "threshold", "direction", "enabled", "created_at"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "user_id": { "type": "string", "format": "objectId", "description": "References users._id." },
+        "symbol": { "type": "string" },
+        "asset_id": { "type": ["string", "null"], "format": "objectId" },
+        "threshold": { "type": "number", "exclusiveMinimum": 0 },
+        "direction": { "type": "string", "enum": ["ABOVE", "BELOW"] },
+        "enabled": { "type": "boolean", "default": true },
+        "triggered_at": { "type": ["string", "null"], "format": "date-time" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "indexes": [
+        { "fields": { "user_id": 1, "enabled": 1 } }
+      ]
+    },
+
+    "notifications": {
+      "type": "object",
+      "description": "Alert trigger notification history.",
+      "required": ["_id", "alert_id", "user_id", "channel", "status", "sent_at"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "alert_id": { "type": "string", "format": "objectId", "description": "References alerts._id." },
+        "user_id": { "type": "string", "format": "objectId", "description": "References users._id." },
+        "channel": { "type": "string", "enum": ["EMAIL", "SMS", "PUSH", "IN_APP"] },
+        "status": { "type": "string", "enum": ["PENDING", "SENT", "FAILED"] },
+        "sent_at": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "exchanges": {
+      "type": "object",
+      "description": "Supported market trading exchanges.",
+      "required": ["_id", "name", "country"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "name": { "type": "string" },
+        "country": { "type": "string" },
+        "url": { "type": ["string", "null"], "format": "uri" }
+      }
+    },
+
+    "price_history": {
+      "type": "object",
+      "description": "Historical asset price points.",
+      "required": ["_id", "symbol", "price", "timestamp"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "asset_id": { "type": ["string", "null"], "format": "objectId" },
+        "symbol": { "type": "string" },
+        "price": { "type": "number" },
+        "volume": { "type": ["number", "null"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "news_articles": {
+      "type": "object",
+      "description": "Market news and sentiment articles.",
+      "required": ["_id", "headline", "source", "url", "published_at", "asset_ids"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "headline": { "type": "string" },
+        "source": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "published_at": { "type": "string", "format": "date-time" },
+        "asset_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "currency_rates": {
+      "type": "object",
+      "description": "Foreign currency rates against USD.",
+      "required": ["_id", "currency_code", "rate_to_usd", "updated_at"],
+      "properties": {
+        "_id": { "type": "string", "description": "Currency code serving as _id (e.g. EUR, GBP)." },
+        "currency_code": { "type": "string" },
+        "rate_to_usd": { "type": "number", "exclusiveMinimum": 0 },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "audit_logs": {
+      "type": "object",
+      "description": "Audit trail recording system actions for security and compliance.",
+      "required": ["_id", "user_id", "action", "timestamp"],
+      "properties": {
+        "_id": { "type": "string", "format": "objectId" },
+        "user_id": { "type": "string", "format": "objectId", "description": "References users._id." },
+        "action": { "type": "string", "description": "Action key (e.g. USER_LOGIN, CREATED_PORTFOLIO)." },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "indexes": [
+        { "fields": { "user_id": 1, "timestamp": -1 } }
+      ]
+    }
+  }
+}

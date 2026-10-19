@@ -1,0 +1,68 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"outline-variant":"#c1c6d7","surface":"#f9f9fb","on-tertiary-fixed":"#351000","on-secondary-container":"#636264","primary-fixed":"#d8e2ff","secondary-fixed-dim":"#c8c6c8","on-surface":"#1a1c1d","on-tertiary-fixed-variant":"#7c2e00","surface-container-low":"#f3f3f5","secondary":"#5f5e60","surface-container-lowest":"#ffffff","inverse-on-surface":"#f0f0f2","on-secondary-fixed-variant":"#474649","on-primary":"#ffffff","surface-container-high":"#e8e8ea","on-error":"#ffffff","surface-tint":"#005bc1","on-tertiary-container":"#fffbff","on-tertiary":"#ffffff","surface-container":"#eeeef0","primary-container":"#0070eb","tertiary-container":"#c64f00","on-primary-fixed-variant":"#004493","primary-fixed-dim":"#adc6ff","surface-bright":"#f9f9fb","surface-dim":"#d9dadc","tertiary":"#9e3d00","primary":"#0058bc","error":"#ba1a1a","tertiary-fixed-dim":"#ffb595","on-secondary":"#ffffff","secondary-container":"#e1dfe1","on-surface-variant":"#414755","on-error-container":"#93000a","tertiary-fixed":"#ffdbcc","surface-variant":"#e2e2e4","outline":"#717786","surface-container-highest":"#e2e2e4","background":"#f9f9fb","error-container":"#ffdad6","on-secondary-fixed":"#1b1b1d","inverse-primary":"#adc6ff","inverse-surface":"#2f3132","secondary-fixed":"#e4e2e4","on-background":"#1a1c1d","on-primary-container":"#fefcff","on-primary-fixed":"#001a41"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"base":"4px","xs":"4px","sm":"8px","xl":"32px","margin":"24px","gutter":"16px","md":"16px","lg":"24px"},"fontFamily":{"display":["Inter"],"headline":["Inter"],"body-sm":["Inter"],"data-sm":["JetBrains Mono"],"title":["Inter"],"body":["Inter"],"data-lg":["JetBrains Mono"],"data-md":["JetBrains Mono"]},"fontSize":{"display":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"data-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],"title":["18px",{"lineHeight":"24px","fontWeight":"600"}],"body":["14px",{"lineHeight":"20px","fontWeight":"400"}],"data-lg":["18px",{"lineHeight":"24px","fontWeight":"500"}],"data-md":["14px",{"lineHeight":"20px","fontWeight":"500"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/></head><body class="bg-background font-body text-on-background"><main class="w-full flex items-center justify-center min-h-screen"><div class="flex flex-col w-full h-[calc(100vh-64px)] items-center justify-center p-md">
+<div class="relative w-full max-w-[400px]">
+<!-- Decorative subtle background glow -->
+<div class="absolute -inset-1 bg-gradient-to-r from-primary/10 to-surface-tint/10 rounded-xl blur-lg z-0"></div>
+<div class="relative z-10 bg-surface-container-lowest rounded-xl p-xl shadow-md flex flex-col gap-lg border-t border-surface-variant/50">
+<!-- Header / Logo Area -->
+<div class="flex flex-col items-center justify-center gap-sm mt-sm mb-sm text-center">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-sm text-primary">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<h1 class="font-headline text-headline text-on-surface">Welcome Back</h1>
+<p class="font-body text-body text-on-surface-variant">Sign in to access your dashboard</p>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="flex flex-col gap-xs group relative">
+<label class="font-data-sm text-data-sm text-on-surface-variant uppercase tracking-wider pl-1" for="email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-200 pointer-events-none" style="font-size: 20px;">mail</span>
+<input autocomplete="email" class="w-full bg-surface-container-low text-on-surface font-body text-body py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-outline-variant" id="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-xs group relative">
+<div class="flex items-center justify-between pl-1 pr-1">
+<label class="font-data-sm text-data-sm text-on-surface-variant uppercase tracking-wider" for="password">Password</label>
+<a class="font-data-sm text-data-sm text-primary hover:text-primary-container transition-colors duration-200" href="#">Forgot?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-200 pointer-events-none" style="font-size: 20px;">lock</span>
+<input autocomplete="current-password" class="w-full bg-surface-container-low text-on-surface font-body text-body py-3 pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-outline-variant" id="password" placeholder="••••••••" required="" type="password"/>
+<button aria-label="Toggle password visibility" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors duration-200 focus:outline-none" type="button">
+<span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center gap-sm mt-1 mb-1">
+<div class="relative flex items-center justify-center">
+<input class="peer appearance-none w-4 h-4 rounded-sm bg-surface-container-low checked:bg-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 cursor-pointer" id="remember" type="checkbox"/>
+<span class="material-symbols-outlined absolute text-on-primary pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity duration-200" style="font-size: 14px; font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<label class="font-body text-body text-on-surface-variant cursor-pointer select-none hover:text-on-surface transition-colors duration-200" for="remember">Remember this device</label>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary text-on-primary font-title text-title py-3 rounded-lg hover:bg-primary-container focus:outline-none focus:ring-4 focus:ring-primary/20 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-sm mt-sm" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+</button>
+</form>
+<!-- Footer -->
+<div class="text-center mt-sm pt-md border-t border-surface-variant/30">
+<p class="font-body text-body text-on-surface-variant">
+                    Don't have an account? 
+                    <a class="font-title text-body text-primary hover:text-primary-container transition-colors duration-200" href="#">Request Access</a>
+</p>
+</div>
+</div>
+<!-- Environment Indicator (Decorative) -->
+<div class="absolute -bottom-12 left-0 right-0 flex justify-center gap-sm items-center text-on-surface-variant/50 font-data-sm text-data-sm">
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+            SECURE CONNECTION
+        </div>
+</div>
+</div></main></body></html>
